@@ -10,19 +10,19 @@ from .nodes import *
 def main():
     
     # device setting
-    mpu9250 = Mpu9250()
-    con = SensorController(SensorGroup(mpu9250))
-    que = LogQueue(maxlen=500, dnames=con.dnames)
-    dlogger = DataLogger(con, que)
+    mpu9250 =   Mpu9250()
+    con     =   SensorController(SensorGroup(mpu9250))
+    que     =   LogQueue(maxlen=500, dnames=con.dnames)
+    dlogger =   DataLogger(con, que)
     
     # context setting
     context = Context({
-                    FallingNode: {True: ParaSeparateNode, False: FallingNode},
-                    ParaSeparateNode: {True: FirstRunningNode, False: ParaSeparateNode},
-                    FirstRunningNode: {True: ChildSeparateNode, False: FirstRunningNode},
-                    ChildSeparateNode: {True: SencondRunningNode, False: ChildSeparateNode},
-                    SencondRunningNode: {True: GoalDetectNode, False: SencondRunningNode},
-                    GoalDetectNode: {True: None, False: GoalDetectNode}
+                    FallingNode:        {True: ParaSeparateNode,    False: FallingNode},
+                    ParaSeparateNode:   {True: FirstRunningNode,    False: ParaSeparateNode},
+                    FirstRunningNode:   {True: ChildSeparateNode,   False: FirstRunningNode},
+                    ChildSeparateNode:  {True: SencondRunningNode,  False: ChildSeparateNode},
+                    SencondRunningNode: {True: GoalDetectNode,      False: SencondRunningNode},
+                    GoalDetectNode:     {True: None,                False: GoalDetectNode}
                 },
                 start=FallingNode)
     
