@@ -1,0 +1,12 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+pisat = {git = "https://github.com/jjj999/pisat.git"}
+
+[requires]
+python_version = "3.7"
