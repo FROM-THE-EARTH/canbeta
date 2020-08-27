@@ -1,10 +1,10 @@
 
 from typing import Dict, Any
 
-import pisat.sensor.const as const
+import pisat.config.dname as dname
 from pisat.core.nav import Node
 
-from .setting import *
+import can09.setting as setting
 
 
 class FallingNode(Node):
@@ -14,7 +14,7 @@ class FallingNode(Node):
     #
     
     def judge(self, data: Dict[str, Any]) -> bool:
-        if data[const.DATA_ALTITUDE] < THRESHOLD_LANDING_DETECT:
+        if data[dname.ALTITUDE_SEALEVEL] < setting.THRESHOLD_LANDING_DETECT:
             return True
         else:
             return False
