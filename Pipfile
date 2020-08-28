@@ -9,6 +9,7 @@ memory-profiler = "*"
 
 [packages]
 pisat = {git = "https://github.com/jjj999/pisat.git"}
+pigpio = "*"
 
 [requires]
 python_version = "3.7"
