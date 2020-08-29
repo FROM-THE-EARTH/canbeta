@@ -88,7 +88,7 @@ axes[0].set_ylabel("気圧   [hPa]")
 axes_altitude.set_ylabel("高度   [m]")
 
 axes_temp = axes[1].twinx()
-axes[1].scatter(time_mission, pressure, s=5, color="orange", label="気圧")
+axes[1].scatter(time_mission, pressure, s=5, color="orange")
 axes_temp.scatter(time_mission, temperature, s=5, color="green", label="高度")
 axes[1].set_xlabel("ミッション経過時間  [sec]")
 axes[1].set_ylabel("気圧   [hPa]")
@@ -105,15 +105,18 @@ axes_altitude = axes_press.twinx()
 axes_press.scatter(time_mission[time_mission >= 300.],
              pressure[time_mission >= 300.],
              s=5,
-             color="orange")
+             color="orange",
+             label="気圧")
 axes_altitude.scatter(time_mission[time_mission >= 300.],
              altitude[time_mission >= 300.],
              s=5,
-             color="blue")
+             color="blue",
+             label="高度")
 axes_altitude.set_xlabel("ミッション経過時間  [sec]")
 axes_altitude.set_ylabel("高度   [m]")
 axes_press.set_ylabel("気圧   [hPa]")
 
+fig.legend()
 fig.savefig("press-altitude_more.png", bbox_inches="tight", pad_inches=0.05)
 fig.show()
 
@@ -134,36 +137,39 @@ fig.show()
 # %%
 fig, axes = plt.subplots()
 axes_altitude = axes.twinx()
-axes_altitude.scatter(time_mission, altitude, s=5, color="blue")
-axes.scatter(time_mission, accel_x, s=5, color="red")
+axes_altitude.scatter(time_mission, altitude, s=5, color="blue", label="高度")
+axes.scatter(time_mission, accel_x, s=5, color="red", label=r"$arr_x$")
 axes.set_xlabel("ミッション経過時間  [sec]")
 axes.set_ylabel(r"$acc_x  \quad \rm{[m/s^2]}$")
 axes_altitude.set_ylabel("高度   [m]")
 
+fig.legend()
 fig.savefig("acc_x-altitude.png")
 fig.show()
 
 # %%
 fig, axes = plt.subplots()
 axes_altitude = axes.twinx()
-axes_altitude.scatter(time_mission, altitude, s=5, color="blue")
-axes.scatter(time_mission, accel_z, s=5, color="green")
+axes_altitude.scatter(time_mission, altitude, s=5, color="blue", label="高度")
+axes.scatter(time_mission, accel_z, s=5, color="green", label=r"$acc_z$")
 axes.set_xlabel("ミッション経過時間  [sec]")
 axes.set_ylabel(r"$acc_z  \quad \rm{[m/s^2]}$")
 axes_altitude.set_ylabel("高度   [m]")
 
+fig.legend()
 fig.savefig("acc_z-altitude.png")
 fig.show()
 
 # %%
 fig, axes_x = plt.subplots()
 axes_z = axes_x.twinx()
-axes_x.scatter(time_mission, accel_x, s=5, color="red")
-axes_z.scatter(time_mission, accel_z, s=5, color="green")
+axes_x.scatter(time_mission, accel_x, s=5, color="red", label=r"$acc_x$")
+axes_z.scatter(time_mission, accel_z, s=5, color="green", label=r"$acc_z$")
 axes_x.set_xlabel("ミッション経過時間  [sec]")
 axes_x.set_ylabel(r"$acc_x  \quad \rm{[m/s^2]}$")
 axes_z.set_ylabel(r"$acc_z  \quad \rm{[m/s^2]}$")
 
+fig.legend()
 fig.savefig("acc_x-z.png")
 fig.show()
 
@@ -174,9 +180,9 @@ axes[1].scatter(time_mission, gyro_y, s=5, color="orange")
 axes[2].scatter(time_mission, gyro_z, s=5, color="green")
 
 axes[2].set_xlabel("ミッション経過時間  [sec]")
-axes[0].set_ylabel(r"$gyro_x$" + "  [G]")
-axes[1].set_ylabel(r"$gyro_y$" + "  [G]")
-axes[2].set_ylabel(r"$gyro_z$" + "  [G]")
+axes[0].set_ylabel(r"$gyro_x$" + "  [dps]")
+axes[1].set_ylabel(r"$gyro_y$" + "  [dps]")
+axes[2].set_ylabel(r"$gyro_z$" + "  [dps]")
 
 fig.savefig("gyro_xyz.png", bbox_inches="tight", pad_inches=0.05)
 fig.show()
