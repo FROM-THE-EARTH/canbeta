@@ -56,40 +56,45 @@ fig.show()
 # %% plotting Time vs Pressure and Temperature
 fig, axes_press = plt.subplots()
 axes_temp = axes_press.twinx()
-axes_press.scatter(time_mission, pressure, s=5, color="orange")
-axes_temp.scatter(time_mission, temperature, s=5, color="green")
+axes_press.scatter(time_mission, pressure, s=5, color="orange", label="気圧")
+axes_temp.scatter(time_mission, temperature, s=5, color="green", label="温度")
 axes_press.set_xlabel("ミッション経過時間  [sec]")
 axes_press.set_ylabel("気圧   [hPa]")
 axes_temp.set_ylabel("温度   [℃]")
 
+fig.legend()
 fig.show()
 
 # %% plotting Time vs Altitude and Pressure
 fig, axes_altitude = plt.subplots()
 axes_press = axes_altitude.twinx()
-axes_altitude.scatter(time_mission, altitude, s=5)
-axes_press.scatter(time_mission, pressure, s=5, color="orange")
+axes_altitude.scatter(time_mission, altitude, s=5, color="blue", label="高度")
+axes_press.scatter(time_mission, pressure, s=5, color="orange", label="気圧")
 axes_altitude.set_xlabel("ミッション経過時間  [sec]")
 axes_altitude.set_ylabel("高度   [m]")
 axes_press.set_ylabel("気圧   [hPa]")
+
+fig.legend()
+fig.show()
 
 # %%
 fig, axes = plt.subplots(1, 2, figsize=(20, 8))
 
 axes_altitude = axes[0].twinx()
-axes[0].scatter(time_mission, pressure, s=5, color="orange")
-axes_altitude.scatter(time_mission, altitude, s=5, color="blue")
+axes[0].scatter(time_mission, pressure, s=5, color="orange", label="気圧")
+axes_altitude.scatter(time_mission, altitude, s=5, color="blue", label="高度")
 axes[0].set_xlabel("ミッション経過時間  [sec]")
 axes[0].set_ylabel("気圧   [hPa]")
 axes_altitude.set_ylabel("高度   [m]")
 
 axes_temp = axes[1].twinx()
-axes[1].scatter(time_mission, pressure, s=5, color="orange")
-axes_temp.scatter(time_mission, temperature, s=5, color="green")
+axes[1].scatter(time_mission, pressure, s=5, color="orange", label="気圧")
+axes_temp.scatter(time_mission, temperature, s=5, color="green", label="高度")
 axes[1].set_xlabel("ミッション経過時間  [sec]")
 axes[1].set_ylabel("気圧   [hPa]")
 axes_temp.set_ylabel("温度   [℃]")
 
+fig.legend()
 fig.savefig("press-alitude&temp.png", bbox_inches="tight", pad_inches=0.05)
 fig.show()
 
