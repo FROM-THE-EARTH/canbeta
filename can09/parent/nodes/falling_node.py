@@ -19,7 +19,7 @@ class FallingNode(Node):
             print("This isn't flying, this is falling with style!")
             return True
         else:
-            print("Landing!")
+            print("Landin'!")
             return False
 
     def control(self):
