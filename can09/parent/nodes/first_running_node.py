@@ -41,5 +41,5 @@ class FirstRunningNode(Node):
             print("Hoge")
             
     def calc_pwm(self, longi, lati) -> float:
-        print("HogeHoge")
+        print("HogeHogeHogeHoge")
         pass
