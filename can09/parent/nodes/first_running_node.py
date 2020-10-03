@@ -1,8 +1,9 @@
 
-from typing import Dict, Any
-from time import sleep
+from typing import Dict, Deque
+from time import time, sleep
 
 import pisat.config.dname as dname
+from pisat.config.type import Logable
 from pisat.core.nav import Node
 from pisat.core.logger import DataLogger
 
@@ -16,30 +17,72 @@ class FirstRunningNode(Node):
         '''
         第一目的地が正面を向くようにその場で回転．
         '''
-        self.dlogger: DataLogger = self.manager.get_component("DataLogger")
+        dlogger = self.manager.get_component("DataLogger")
+        self.ref = dlogger.refqueue
         self.motors = self.manager.get_component("TwoWheels")
     
-    def judge(self, data: Dict[str, Any]) -> bool:
+    def judge(self, data: Dict[str, Logable]) -> bool:
         '''
         自分の緯度，経度がそれぞれ第一目標地点の5m以内ならTrueを返す．それ以外はFalseを返す．
         '''
-        if data[dname.ALTITUDE_]
+        pass
             
     def control(self):
-        '''
-        走行サイクルを実行．
-        '''
         while not self.event.is_set():
-            ref = self.dlogger.get_ref()
-            longi = ref[0][dname.GPS_LONGITUDE]
-            lati = ref[0][dname.GPS_LATITUDE]
+            que = self.ref.get()
+            self.offset = que[0].get(dname.OFFSET_ANGLE)
+            if self.offset is None:
+                continue
             
-            self.motors.pwm(self.calc_pwm(longi, lati))
-            time.sleep(0.5)
+            if self.offset > setting.THRESHOLD_PID_START or self.offset < -setting.THRESHOOD_PID_START :
+                self._pid_control()
+            else:
+                self.motors.straight()
             
-        if self.event.package:
-            print("Hoge")
+    def _pid_control(self):
+        self._clear()
+        
+        if self.offset > 0:
+            while self.offset > setting.THRESHOLD_PID_FINISH:
+                self._update()
+                
+                sleep(1)
             
-    def calc_pwm(self, longi, lati) -> float:
-        print("HogeHogeHogeHoge")
-        pass
+        else:
+            while self.offset < -setting.THRESHOLD_PID_FINISH:
+                self._update()
+                
+                sleep(1)
+            
+    def _clear(self):
+        self._p_term = 0.0
+        self._i_term = 0.0
+        self._d_term = 0.0
+        self._last_offset = 0.0
+        self._current_time = time()
+        self._last_time = self._current_time
+        
+        self.output = 0.0
+
+    def _update(self):
+        que = self.ref.get()
+        self.offset = que[0].get(dname.OFFSET_ANGLE)
+        
+        self._current_time = time()
+        delta_time = self._current_time - self._last_time
+        delta_error = self.offset - self._last_offset
+        
+        self._p_term = setting.KP * self.offset
+        self._i_term += self.offset * self.delta_time
+
+        if self._i_term > setting.MAX_I_TERM:
+            self._i_term = setting.MAX_I_TERM
+        if self._i_term < -setting.MAX_I_TERM:
+           self._i_term = -setting.MAX_I_TERM
+           
+        self._d_term = delta_error / delta_time
+        
+        self._last_time = self._current_time
+        self._last_error = self.offset
+        
+        self.output = self._p_term + (setting.KI * self._i_term) + (setting.KD * self._d_term)
