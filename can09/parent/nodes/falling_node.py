@@ -1,17 +1,43 @@
 
 from typing import Dict, Any
+from collections import deque
 
 import pisat.config.dname as dname
 from pisat.core.nav import Node
+from pisat.core.logger import DataLogger
 
 import can09.parent.setting as setting
 
-
 class FallingNode(Node):
-    
+
+    def enter(self):
+        self.dlogger: DataLogger = self.manager.get_component("DataLogger")
+        self.que = deque(maxlen=100)
+
     def judge(self, data: Dict[str, Any]) -> bool:
-        if data[dname.ALTITUDE_SEALEVEL] < setting.THRESHOLD_LANDING_DETECT:
+
+        sealevel = data.get(dname.ALTITUDE_SEALEVEL)
+        if sealevel is None:
+            return False
+
+        self.que.appendleft(sealevel)
+
+        length = len(self.que)
+        if length < 50:
+            return False
+
+        dataset = sorted(self.que)
+        for i in range(length/2):
+            sum += dataset(length/4 + i)
+
+        average = sum / length
+
+        if setting.THRESHOLD_LANDING_DETECT < average < setting.THRESHOLD_LANDING_DETECT:
+            print("This isn't flying, this is falling with style!")
             return True
         else:
+            print("Landin'!")
             return False
-        
+
+    def control(self):
+        print("This isn't flying, this is falling with style!")
