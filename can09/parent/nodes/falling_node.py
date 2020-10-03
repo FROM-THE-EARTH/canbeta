@@ -22,13 +22,17 @@ class FallingNode(Node):
 
         self.que.appendleft(sealevel)
 
-        if len(self.que) < 50:
+        length = len(self.que)
+        if length < 50:
             return False
 
-        
+        dataset = sorted(self.que)
+        for i in range(length/2):
+            sum += dataset(length/4 + i)
 
-        if self.SEALEVEL - setting.THRESHOLD_LANDING_DETECT \
-            and data[dname.ALTITUDE_SEALEVEL] < self.SEALEVEL + setting.THRESHOLD_LANDING_DETECT:
+        avarage = sum / length
+
+        if setting.THRESHOLD_LANDING_DETECT < avarage < setting.THRESHOLD_LANDING_DETECT:
             print("This isn't flying, this is falling with style!")
             return True
         else:
