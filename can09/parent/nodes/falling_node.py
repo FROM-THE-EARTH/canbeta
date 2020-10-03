@@ -30,9 +30,9 @@ class FallingNode(Node):
         for i in range(length/2):
             sum += dataset(length/4 + i)
 
-        avarage = sum / length
+        average = sum / length
 
-        if setting.THRESHOLD_LANDING_DETECT < avarage < setting.THRESHOLD_LANDING_DETECT:
+        if setting.THRESHOLD_LANDING_DETECT < average < setting.THRESHOLD_LANDING_DETECT:
             print("This isn't flying, this is falling with style!")
             return True
         else:
