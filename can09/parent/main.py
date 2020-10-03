@@ -7,9 +7,9 @@ from pisat.core.manager import ComponentManager
 from pisat.core.logger import (
     DataLogger, SensorController, LogQueue, SystemLogger
 )
-from pisat.actuator.motor import MotorBase, TwoWheelsBase
-from pisat.sensor.handler import HandlerI2C, HandlerSerial
-from pisat.sensor.sensor import Mpu9250, Gyfsdmaxb, SensorGroup
+from pisat.actuator import BD62xx, TwoWheels
+from pisat.handler import PigpioI2CHandler, PyserialSerialHandler
+from pisat.sensor import Mpu9250, Gyfsdmaxb, SensorGroup
 from pisat.adapter import GpsAdapter, AdapterGroup
 
 from can09.parent.nodes import *
@@ -20,12 +20,12 @@ def run_parent():
 
     # device setting
     pi = pigpio.pi()
-    handler_i2c = HandlerI2C(pi, I2C_ADDRESS_MPU9250)
-    handler_serial = HandlerSerial(port=SERIAL_PORT_GPS)
+    handler_i2c = PigpioI2CHandler(pi, I2C_ADDRESS_MPU9250)
+    handler_serial = PyserialSerialHandler(port=SERIAL_PORT_GPS)
 
-    motor_L = MotorBase(pi, PIN_MOTOR_L_FIN, PIN_MOTOR_L_RIN)
-    motor_R = MotorBase(pi, PIN_MOTOR_R_FIN, PIN_MOTOR_R_RIN)
-    wheels = TwoWheelsBase(motor_L, motor_R)
+    motor_L = BD62xx(pi, PIN_MOTOR_L_FIN, PIN_MOTOR_L_RIN)
+    motor_R = BD62xx(pi, PIN_MOTOR_R_FIN, PIN_MOTOR_R_RIN)
+    wheels = TwoWheels(motor_L, motor_R)
 
     mpu9250 = Mpu9250(handler_i2c)
     gps = Gyfsdmaxb(handler_serial)

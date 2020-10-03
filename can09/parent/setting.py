@@ -1,5 +1,5 @@
 
-from pisat.sensor.handler import UART_SERIAL_PORT
+from pisat.handler import UART_SERIAL_PORT
 
 
 # component name
