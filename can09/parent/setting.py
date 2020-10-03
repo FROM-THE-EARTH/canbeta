@@ -26,6 +26,14 @@ SERIAL_PORT_GPS = UART_SERIAL_PORT
 
 # threshold setting
 THRESHOLD_LANDING_DETECT = 10.
+THRESHOOD_PID_START = 30.
+THRESHOLD_PID_FINISH = 5.
+
+# pid control setting
+KP = 1
+KI = 1
+KD = 1
+MAX_I_TERM = 20
 
 # other
 POSITION_GOAL = (0., 0.)
