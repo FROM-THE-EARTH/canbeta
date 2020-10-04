@@ -34,6 +34,7 @@ KP = 1
 KI = 1
 KD = 1
 MAX_I_TERM = 20
+DEFAULT_DUTY_RATIO = 60
 
 # other
 POSITION_GOAL = (0., 0.)
