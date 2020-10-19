@@ -8,7 +8,7 @@ from pisat.core.logger import (
     DataLogger, SensorController, LogQueue, SystemLogger
 )
 from pisat.actuator import BD62xx, TwoWheels
-from pisat.handler import PigpioI2CHandler, PyserialSerialHandler
+from pisat.handler import PigpioI2CHandler, PyserialSerialHandler, PigpioDigitalOutputHandler
 from pisat.sensor import Mpu9250, Gyfsdmaxb, SensorGroup
 from pisat.adapter import GpsAdapter, AdapterGroup
 
@@ -22,6 +22,7 @@ def run_parent():
     pi = pigpio.pi()
     handler_i2c = PigpioI2CHandler(pi, I2C_ADDRESS_MPU9250)
     handler_serial = PyserialSerialHandler(port=SERIAL_PORT_GPS)
+    fethandler = PigpioDigitalOutputHandler(pi, 5)
 
     motor_L = BD62xx(pi, PIN_MOTOR_L_FIN, PIN_MOTOR_L_RIN)
     motor_R = BD62xx(pi, PIN_MOTOR_R_FIN, PIN_MOTOR_R_RIN)
@@ -41,7 +42,8 @@ def run_parent():
     slogger = SystemLogger()
     slogger.setFileHandler()
 
-    manager = ComponentManager(wheels, dlogger, slogger, recursive=True)
+
+    manager = ComponentManager(wheels, dlogger, slogger, fethandler, recursive=True)
 
     # context setting
     context = Context({
