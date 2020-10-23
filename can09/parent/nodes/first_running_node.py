@@ -19,7 +19,7 @@ class FirstRunningNode(Node):
         第一目的地が正面を向くようにその場で回転．
         '''
         dlogger = self.manager.get_component("DataLogger")
-        self.ref: DataLogger = dlogger.refqueue
+        self.ref = dlogger.refqueue
         self.motor_R = self.manager.get_component("SimplePWMMotorDriver")
         self.motor_L = self.manager.get_component("SimolePWMMotorDriver")
     
