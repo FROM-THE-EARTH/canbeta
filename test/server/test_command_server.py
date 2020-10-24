@@ -63,7 +63,7 @@ class TestCommandServer(unittest.TestCase):
         
     @test_decorator("test_make_request")
     def test_make_request(self):
-        request_ideal = b"$\x81AA1$1:1:1$abc"
+        request_ideal = b"$\x01AA1$1:1:1$abc"
         request = self.make_request()
         self.assertEqual(request, request_ideal)
     
@@ -73,7 +73,6 @@ class TestCommandServer(unittest.TestCase):
         sock = self.socket_transceiver_server.listen()
         params = self.request.parse_request(sock)
         
-        print(f"SC BIT: {params.sc_bit}")
         print(f"RECEPTION NUMBER: {params.reception_num}")
         print(f"COMMAND NAME: {params.command}")
         print(f"ADDRESS: {params.address}")

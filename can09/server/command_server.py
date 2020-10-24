@@ -9,6 +9,8 @@ from can09.server.request import InvalidRequestError, Request
 
 class CommandServer:
     
+    COMMAND_RESPONSE = b"FF"
+    
     def __init__(self, transceiver: SocketTransceiver, request: Request) -> None:
         self._transceiver = transceiver
         self.request = request
@@ -37,10 +39,9 @@ class CommandServer:
                 
                 params = self.request.parse_request(sock)
                 
-                if params.sc_bit != self.request.SC_BIT_REQUEST:
-                    raise InvalidRequestError(
-                        "Invalid 'SC BIT' has been detected."
-                    )
+                # ignore other server's response
+                if params.command == self.COMMAND_RESPONSE:
+                    continue
                 
                 command = self._CtoF.get(params.command)
                 if command is None:

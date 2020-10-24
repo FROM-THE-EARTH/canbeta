@@ -12,6 +12,9 @@ class InvalidRequestError(Exception):
 
 
 class RequestForm:
+    
+    MIN_RECEPTION = 0
+    MAX_RECEPTION = 1 << 8
         
     def __init__(self) -> None:
         self._reception_num: int = None
@@ -25,11 +28,12 @@ class RequestForm:
     
     @reception_num.setter
     def reception_num(self, val):
-        if isinstance(val, int) and 0 <= val <= 127:
+        if isinstance(val, int) and self.MIN_RECEPTION <= val <= self.MAX_RECEPTION:
             self._reception_num = val
         else:
             raise ValueError(
-                "'reception_num' must be int and 0 <= x <= 127."
+                "'reception_num' must be int and " + 
+                f"{self.MIN_RECEPTION} <= x <= {self.MAX_RECEPTION}."
             )
             
     @property
@@ -82,20 +86,14 @@ class Request:
     SEPARATOR_NUM = SEPARATOR[0]
     SEMI_SEPARATOR = b":"
     
-    LEN_BYTE_HEAD = 4
-    
-    SC_BIT_REQUEST = 1
-    SC_BIT_RESPONSE = 0
-    
+    LEN_BYTE_HEAD = 4    
     
     class RequestParams:
-        sc_bit: int = None
         reception_num: int = None
         command: bytes = None
         address: Tuple[bytes] = None
         args: Tuple[bytes] = None
 
-    
     @classmethod
     def make_request(cls, 
                      socket: CommSocket,
@@ -123,7 +121,7 @@ class Request:
     def make_head(cls, form) -> bytes:
         head = bytearray()
         head.extend(cls.SEPARATOR)
-        head.append(0b1000_0000 | form.reception_num)
+        head.append(form.reception_num)
         head.extend(form.command.COMMAND)
         
         return head
@@ -141,7 +139,7 @@ class Request:
 
     @classmethod
     def parse_request(cls, socket: CommSocket):
-        sc_bit, reception_num, command = cls.extract_head(socket)
+        reception_num, command = cls.extract_head(socket)
         addr = cls.extract_param(socket).split(cls.SEMI_SEPARATOR)
         addr = tuple(map(bytes, addr))
         size_args_raw = cls.extract_param(socket).split(cls.SEMI_SEPARATOR)
@@ -150,7 +148,6 @@ class Request:
         for length in map(lambda x: int(x, cls.FROM_HEX), size_args_raw):
             args.append(cls.certain_recv(socket, length))
             
-        cls.RequestParams.sc_bit = sc_bit
         cls.RequestParams.reception_num = reception_num
         cls.RequestParams.command = command
         cls.RequestParams.address = addr
@@ -180,12 +177,10 @@ class Request:
                 f"Invalid request was detected. HEAD: {head}"
             )
             
-        state = head[1]
-        sc_bit = (state & 0b1000_0000) >> 7
-        num_reception = state & 0b0111_1111
+        reception_num = head[1]
         command = head[2:]
         
-        return (sc_bit, num_reception, command)
+        return (reception_num, command)
     
     @classmethod
     def extract_param(cls, socket: CommSocket) -> bytes:
@@ -201,7 +196,6 @@ class Request:
     
     @classmethod
     def reset(cls) -> None:
-        cls.RequestParams.sc_bit = None
         cls.RequestParams.reception_num = None
         cls.RequestParams.command = None
         cls.RequestParams.address = None
