@@ -50,7 +50,7 @@ class CommandServer:
                         f"COMMAND: {params.command}"
                     )
                 
-                command.exec(params)
+                command.exec(sock, params)
                 
         except KeyboardInterrupt:
             pass

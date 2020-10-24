@@ -75,6 +75,21 @@ class RequestForm:
     @property
     def size_args(self):
         return self._size_args
+    
+
+class RequestParams:
+    
+    reception_num: int = None
+    command: bytes = None
+    address: Tuple[bytes] = None
+    args: Tuple[bytes] = None
+        
+    @classmethod
+    def reset(cls) -> None:
+        cls.RequestParams.reception_num = None
+        cls.RequestParams.command = None
+        cls.RequestParams.address = None
+        cls.RequestParams.args = None
 
 
 class Request:
@@ -87,12 +102,6 @@ class Request:
     SEMI_SEPARATOR = b":"
     
     LEN_BYTE_HEAD = 4    
-    
-    class RequestParams:
-        reception_num: int = None
-        command: bytes = None
-        address: Tuple[bytes] = None
-        args: Tuple[bytes] = None
 
     @classmethod
     def make_request(cls, 
@@ -148,12 +157,12 @@ class Request:
         for length in map(lambda x: int(x, cls.FROM_HEX), size_args_raw):
             args.append(cls.certain_recv(socket, length))
             
-        cls.RequestParams.reception_num = reception_num
-        cls.RequestParams.command = command
-        cls.RequestParams.address = addr
-        cls.RequestParams.args = tuple(args)
+        RequestParams.reception_num = reception_num
+        RequestParams.command = command
+        RequestParams.address = addr
+        RequestParams.args = tuple(args)
         
-        return cls.RequestParams
+        return RequestParams
             
     @staticmethod
     def certain_recv(socket: CommSocket, count: int) -> bytes:
@@ -193,10 +202,3 @@ class Request:
             data.extend(char)
             
         return data
-    
-    @classmethod
-    def reset(cls) -> None:
-        cls.RequestParams.reception_num = None
-        cls.RequestParams.command = None
-        cls.RequestParams.address = None
-        cls.RequestParams.args = None
