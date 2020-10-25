@@ -1,15 +1,16 @@
 
 import threading
 import time
-from typing import Tuple, Any
 import unittest
 
-from pisat.comm.transceiver import SocketTransceiver
+from pisat.comm.transceiver import SocketTransceiver, CommSocket
 from pisat.tester.comm import TestTransceiver
 
-from can09.server.command_base import CommandBase, CommandParams
 from can09.server.command_server import CommandServer
-from can09.server.request import Request, RequestForm
+from can09.server.request import (
+    Request, RequestForm,
+    CommandBase, CommandParams, RequestCommandError, RequestParams
+)
 
 
 class TestCommand(CommandBase):
@@ -17,7 +18,7 @@ class TestCommand(CommandBase):
     LEN_ARGS = CommandParams.ARGS_NOTHING
     
     @classmethod
-    def exec(cls, params: Tuple[bytes]) -> Any:
+    def exec(cls, sock: CommSocket, params: RequestParams) -> None:
         pass
     
 
@@ -92,7 +93,15 @@ class TestCommandServer(unittest.TestCase):
     def test_serve(self):
         self.exec_client()
         self.command_server.start_serve(timeout=5.)
-    
+        
+    @test_decorator("test_serve_no_command")
+    def test_serve_no_command(self):
+        server = CommandServer(self.socket_transceiver_server, Request)
+        try:
+            server.start_serve(timeout=5.)
+            raise Exception("RequestCommandError has not occured.")
+        except RequestCommandError:
+            pass
     
 if __name__ == "__main__":
     unittest.main()

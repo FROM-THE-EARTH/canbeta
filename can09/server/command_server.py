@@ -3,13 +3,15 @@ from typing import Dict, Tuple, Union
 
 from pisat.comm.transceiver import SocketTransceiver
 
-from can09.server.command_base import CommandBase
-from can09.server.request import InvalidRequestError, Request
+from can09.server.request import (
+    CommandBase, ResponseBase, RequestCommandError,
+    InvalidRequestError, Request
+)
 
 
 class CommandServer:
     
-    COMMAND_RESPONSE = b"FF"
+    COMMAND_RESPONSE = ResponseBase.COMMAND
     
     def __init__(self, transceiver: SocketTransceiver, request: Request) -> None:
         self._transceiver = transceiver
@@ -26,6 +28,11 @@ class CommandServer:
             self._CtoF[command.COMMAND] = command
     
     def start_serve(self, timeout: Union[float, int] = -1.) -> None:
+        if not len(self._CtoF):
+            raise RequestCommandError(
+                "No command has been registerd yet."
+            )
+        
         if not isinstance(timeout, (float, int)):
             raise TypeError(
                 "'timeout' must be float or int."

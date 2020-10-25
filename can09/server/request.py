@@ -1,14 +1,53 @@
 
+from enum import Enum, auto
 from typing import Sequence, Tuple, Union
 
 from pisat.comm.transceiver import CommSocket
 
-from can09.server.command_base import CommandBase
+
+class RequestCommandError(Exception):
+    """Raised if an error about commands occurs."""
+    pass
 
 
 class InvalidRequestError(Exception):
     """Raised if a given request was invalid."""
     pass
+
+
+class RequestParams:
+    
+    reception_num: int = None
+    command: bytes = None
+    address: Tuple[bytes] = None
+    args: Tuple[bytes] = None
+        
+    @classmethod
+    def reset(cls) -> None:
+        cls.RequestParams.reception_num = None
+        cls.RequestParams.command = None
+        cls.RequestParams.address = None
+        cls.RequestParams.args = None
+
+
+class CommandParams(Enum):
+    ARGS_NOTHING = auto()
+    ARGS_ARBITARY = auto()
+
+
+class CommandBase:
+    
+    COMMAND = b""
+    LEN_ARGS = CommandParams.ARGS_NOTHING
+    
+    @classmethod
+    def exec(cls, socket: CommSocket, params: RequestParams) -> None:
+        pass
+    
+
+class ResponseBase(CommandBase):
+    
+    COMMAND = b"FF"
 
 
 class RequestForm:
@@ -75,21 +114,6 @@ class RequestForm:
     @property
     def size_args(self):
         return self._size_args
-    
-
-class RequestParams:
-    
-    reception_num: int = None
-    command: bytes = None
-    address: Tuple[bytes] = None
-    args: Tuple[bytes] = None
-        
-    @classmethod
-    def reset(cls) -> None:
-        cls.RequestParams.reception_num = None
-        cls.RequestParams.command = None
-        cls.RequestParams.address = None
-        cls.RequestParams.args = None
 
 
 class Request:
