@@ -32,12 +32,10 @@ class FallingNode(Node):
 
         average = sum / length
 
-        if setting.THRESHOLD_LANDING_DETECT < average < setting.THRESHOLD_LANDING_DETECT:
-            print("This isn't flying, this is falling with style!")
+        if abs(setting.THRESHOLD_LANDING_DETECT - average) < 1:
             return True
         else:
             print("Landin'!")
             return False
 
     def control(self):
-        print("This isn't flying, this is falling with style!")
