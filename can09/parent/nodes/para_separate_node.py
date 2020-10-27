@@ -19,8 +19,8 @@ class ParaSeparateNode(Node):
         self.que = deque(maxlen=100)
         self.fethandler: PigpioDigitalOutputHandler = self.manager.get_component("PigpioDigitalOutputHandler")
         self.motors = self.manager.get_component("TwoWheels")
-        self.ave
-        self.gap = false
+        self.ave = 0.
+        self.gap = False
 
     def judge(self, data: Dict[str, Any]) -> bool:
         advance = data.get(dname.ACCELERATION_X)
@@ -33,10 +33,10 @@ class ParaSeparateNode(Node):
         if length < 50:
             return False
 
-        if(!self.ave and queue_ave(self.que) - self.ave > 1):
+        if(self.ave and self.queue_ave(self.que) - self.ave > 1):
             return True
         else:
-            self.ave = queue_ave(self.que)
+            self.ave = self.queue_ave(self.que)
             return False
 
     def control(self):
