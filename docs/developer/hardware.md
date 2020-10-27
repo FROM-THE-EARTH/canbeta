@@ -35,12 +35,20 @@
 I2C は BNO055 (9軸慣性センサ)，BME280 (気圧温湿度センサ) を利用するために用います．
 I2C による信号処理のためには pisat.handler.PigpioI2CHandler を用います．
 センサの利用は pisat.sensor.Bno055，pisat.sensor.Bme280 クラスを用います．
+各センサの I2C アドレスは以下のとおりです．
+
+センサ    | I2C アドレス
+:--------:|:-------------:
+BNO055    | 0x28
+BME280    | 0x76
+
 
 #### UART
 
 UART は GPS 受信モジュールである SAM-M8Q を利用するために用います．
 UART の処理には pisat.handler.PyserialSerialHandler を用います．
 GPS モジュールの利用には pisat.sensor.SamM8Q クラスを用います．
+使用するシリアルポートは **/dev/serial0** です．
 
 #### GPIO13, GPIO19, GPIO18, GPIO12
 
@@ -80,6 +88,7 @@ BNO055 の割り込み機能を利用する場合に用いるピンです．
 この USB は IM920 を利用するために使用します．
 USB の使用には pisat.handler.PyserialSerialHandler を利用します．
 IM920 をソケット感覚で使用したい場合は SocketTransceiver クラスでラップする必要があります．
+使用するシリアルポートは **/dev/ttyUSB0** です．
 
 
 ### 子機
@@ -95,18 +104,27 @@ IM920 をソケット感覚で使用したい場合は SocketTransceiver クラ�
 I2C は BME280 (気圧温湿度センサ), OPT3002 (光センサ) を利用するために用います．
 I2C による信号処理のためには pisat.handler.PigpioI2CHandler を用います．
 センサの利用は pisat.sensor.Bme280, pisat.sensor.Opt3002 クラスを用います．
+各センサの I2C アドレスは以下のとおりです．
+
+センサ    | I2C アドレス
+:--------:|:-------------:
+BME280    | 0x76
+OPT3002   | 0x68
 
 #### UART
 
 UART は GPS 受信モジュールである SAM-M8Q を利用するために用います．
 UART の処理には pisat.handler.PyserialSerialHandler を用います．
 GPS モジュールの利用には pisat.sensor.SamM8Q クラスを用います．
+使用するシリアルポートは **/dev/serial0** です．
+
 
 #### USB0
 
 この USB は IM920 を利用するために使用します．
 USB の使用には pisat.handler.PyserialSerialHandler を利用します．
 IM920 をソケット感覚で使用したい場合は SocketTransceiver クラスでラップする必要があります．
+使用するシリアルポートは **/dev/ttyUSB0** です．
 
 
 ## 開発の際に
