@@ -1,6 +1,6 @@
-
-from typing import Dict, Deque
-from time import time, sleep
+from can09.parent.util.pid_controller import PIDController
+from typing import Dict
+from time import sleep
 from numpy import abs
 
 import pisat.config.dname as dname
@@ -9,6 +9,7 @@ from pisat.core.nav import Node
 from pisat.core.logger import DataLogger
 
 import can09.parent.setting as setting
+from can09.parent.util.pid_controller import PIDController
 
 
 class FirstRunningNode(Node):
@@ -18,13 +19,13 @@ class FirstRunningNode(Node):
         '''
         第一目的地が正面を向くようにその場で回転．
         '''
-        dlogger = self.manager.get_component("DataLogger")
-        self.ref = dlogger.refqueue
-        self.motor_R = self.manager.get_component("SimplePWMMotorDriver")
-        self.motor_L = self.manager.get_component("SimolePWMMotorDriver")
+        self._ref = self.manager.get_component("DataLogger").refqueue
+        self._motor_R = self.manager.get_component("SimplePWMMotorDriver")
+        self._motor_L = self.manager.get_component("SimolePWMMotorDriver")
+        
+        self._pidcontroller = PIDController(setting.KP, setting.KI, setting.KD, setting.DUTY_BASE)
     
     def judge(self, data: Dict[str, Logable]) -> bool:
-        
         distance = data.get(dname.DISTANCE_FIRST_GOAL)
         if distance is None:
             return False
@@ -32,98 +33,35 @@ class FirstRunningNode(Node):
         if distance < setting.THRESHOLD_CHILD_RELEASE:
             return True
             
-    def control(self):
-        
-        self._duty_base = setting.DUTY_RATIO_FAR
-        
+    def control(self) -> None:
         while not self.event.is_set():
             
-            que = self.ref.get()
-            self.offset = que[0].get(dname.OFFSET_ANGLE)
-            if self.offset is None:
+            offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
+            if offset is None:
                 continue
             
-            if abs(self.offset) > setting.THRESHOLD_PID_START:
-                self._running_cycle()
+            if abs(offset) > setting.THRESHOLD_PID_START:
+                self._pidcontroller.reset(offset)
+                self._excecute_pid_control()
             else:
-                self.motor_R.ccw(self._duty_base)
-                self.motor_L.cw(self._duty_base)
+                self._motor_R.ccw(setting.DUTY_BASE)
+                self._motor_L.cw(setting.DUTY_BASE)
+                
+    def _excecute_pid_control(self) -> None:        
+        while True:
+            sleep(1)
             
-    def _running_cycle(self):
-        self._clear()
-        
-        if self.offset > 0:
-            while self.offset > setting.THRESHOLD_PID_FINISH:
-                self._pid_controller()
-                self.motor_R.ccw(self._duty_updated)
-                self.motor_L.cw(self._duty_base)
-                sleep(1)
-            
-        else:
-            while self.offset < -setting.THRESHOLD_PID_FINISH:
-                self._pid_controller()
-                self.motor_R.ccw(self._duty_base)
-                self.motor_L.cw(self._duty_updated)
-                sleep(1)
-            
-    def _clear(self):
-        self._p_term = 0.0
-        self._i_term = 0.0
-        self._d_term = 0.0
-        self._last_offset = 0.0
-        self._current_time = time()
-        self._last_time = self._current_time
-        
-    def _set_up_parameters(self):
-        que = self.ref.get()
-        temp_offset = abs(que[0].get(dname.OFFSET_ANGLE))
-        if temp_offset is not None:
-            self._offset = temp_offset
-        elif self._offset < 0:
-            self._offset = - self._offset
-        
-        self._current_time = time()
-        self._delta_time = self._current_time - self._last_time
-        
-        self._delta_error = self._offset - self._last_offset
-        
-    def _update_p(self):
-        self._p_term = self._offset
-        
-    def _update_i(self):
-        i_term_temp = self._offset * self._delta_time
-        if self._offset > setting.THRESHOLD_I_TERM:
-            i_term_temp = 0
-        self._i_term += i_term_temp
-        if self._i_term > setting.MAX_I_TERM:
-            self._i_term = setting.MAX_I_TERM
-        elif self._i_term < setting.MIN_I_TERM:
-           self._i_term = setting.MIN_I_TERM
-           
-    def _update_d(self):
-        self._d_term = self._delta_error / self._delta_time
-        
-    def _save_parameters(self):
-        self._last_time = self._current_time
-        self._last_error = self._offset
-        
-    def _update_duty_ratio(self):
-        output = (setting.KP * self._p_term) + (setting.KI * self._i_term) + (setting.KD * self._d_term)
-        if output < 0:
-            output = 0
-        
-        self._duty_updated = self._duty_base - output
-        if self._duty_updated < setting.MIN_DUTY_RATIO:
-            self._duty_updated = setting.MIN_DUTY_RATIO
+            offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
+            if offset is None:
+                continue
 
-    def _pid_controller(self):
-        
-        self._set_up_parameters()
-        
-        self._update_p()
-        self._update_i()
-        self._update_d()
-        
-        self._save_parameters()
-        
-        self._update_duty_ratio()
+            duty = self._pidcontroller.calc_duty(abs(offset))
+            
+            if offset > setting.THRESHOLD_PID_FINISH:
+                self._motor_R.ccw(duty)
+                self._motor_L.cw(setting.DUTY_BASE)
+            elif offset < - setting.THRESHOLD_PID_FINISH:
+                self._motor_R.ccw(setting.DUTY_BASE)
+                self._motor_L.cw(duty)
+            else:
+                break
