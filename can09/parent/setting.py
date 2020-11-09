@@ -31,10 +31,12 @@ THRESHOLD_PID_FINISH = 5.
 THRESHOLD_CHILD_RELEASE = 0.5
 
 # pid control setting
-KP = 1
-KI = 1
-KD = 1
-DUTY_BASE = 60
+KP = 1.
+KI = 1.
+KD = 1.
+MAX_DUTY = 100.
+MIN_DUTY = 0.
+DUTY_BASE = 50.
 
 # other
 POSITION_GOAL = (0., 0.)
