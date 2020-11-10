@@ -24,7 +24,13 @@ class FirstRunningNode(Node):
         self._right_motor: SimplePWMDCMotorDriver = self.manager.get_component("RightMotor")
         self._left_motor: SimplePWMDCMotorDriver = self.manager.get_component("LeftMotor")
         
-        self._pidcontroller = PIDController(setting.KP, setting.KI, setting.KD, setting.MAX_DUTY, setting.MIN_DUTY)
+        self._pidcontroller = PIDController(setting.KP,
+                                            setting.KI,
+                                            setting.KD,
+                                            setting.MAX_DUTY,
+                                            setting.MIN_DUTY,
+                                            setting.ACCEPTABLE_MOE,
+                                            setting.THRESHOLD_I_CTRLR)
     
     def judge(self, data: Dict[str, Logable]) -> bool:
         """Returns 'True' if the first goal is reached"""
@@ -53,13 +59,11 @@ class FirstRunningNode(Node):
         while not self.event.is_set():
             offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
             
-            if offset is None:
+            if offset is None or offset == 0:
                 continue
             elif offset > 0:
-                self._pidcontroller.reset(offset)
                 self._exec_pid_ctrl_right()
             elif offset < 0:
-                self._pidcontroller.reset(-offset)
                 self._exec_pid_ctrl_left()
                 
         self._right_motor.brake()
@@ -67,9 +71,7 @@ class FirstRunningNode(Node):
             
     def _exec_pid_ctrl_right(self) -> None:
         """Executes PID controller on the right motor"""
-        while not self.event.is_set():
-            sleep(1)
-            
+        while not self.event.is_set():            
             offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
             if offset is None:
                 continue
@@ -79,11 +81,11 @@ class FirstRunningNode(Node):
             self._right_motor.ccw(duty)
             self._left_motor.cw(setting.DUTY_BASE)
             
-    def _exec_pid_ctrl_left(self) -> None:
-        """Executes PID controller on the left motor"""
-        while not self.event.is_set():
             sleep(1)
             
+    def _exec_pid_ctrl_left(self) -> None:
+        """Executes PID controller on the left motor"""
+        while not self.event.is_set():            
             offset = -self._ref.get()[0].get(dname.OFFSET_ANGLE)
             if offset is None:
                 continue
@@ -92,3 +94,5 @@ class FirstRunningNode(Node):
                 
             self._right_motor.ccw(setting.DUTY_BASE)
             self._left_motor.cw(duty)
+            
+            sleep(1)
