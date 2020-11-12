@@ -1,5 +1,5 @@
 from typing import Dict
-from time import sleep
+from time import sleep, time
 
 import pisat.config.dname as dname
 from pisat.config.type import Logable
@@ -23,6 +23,7 @@ class FirstRunningNode(Node):
         self._ref: DataLogger = self.manager.get_component("DataLogger").refqueue
         self._right_motor: SimplePWMDCMotorDriver = self.manager.get_component("RightMotor")
         self._left_motor: SimplePWMDCMotorDriver = self.manager.get_component("LeftMotor")
+        self._last_time: float = 0.
         
         self._pidcontroller = PIDController(setting.KP,
                                             setting.KI,
@@ -59,6 +60,8 @@ class FirstRunningNode(Node):
         while not self.event.is_set():
             offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
             
+            self._last_time = time()
+            
             if offset is None or offset == 0:
                 continue
             elif offset > 0:
@@ -71,7 +74,12 @@ class FirstRunningNode(Node):
             
     def _exec_pid_ctrl_right(self) -> None:
         """Executes PID controller on the right motor"""
-        while not self.event.is_set():            
+        while not self.event.is_set():
+            current_time = time()
+            if (current_time - self._last_time) < setting.SAMPLE_TIME:
+                continue
+            self._last_time = current_time
+                     
             offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
             if offset is None:
                 continue
@@ -80,12 +88,17 @@ class FirstRunningNode(Node):
                 
             self._right_motor.ccw(duty)
             self._left_motor.cw(setting.DUTY_BASE)
-            
-            sleep(1)
+                        
+            sleep(setting.SAMPLE_TIME)
             
     def _exec_pid_ctrl_left(self) -> None:
         """Executes PID controller on the left motor"""
-        while not self.event.is_set():            
+        while not self.event.is_set():
+            current_time = time()
+            if (current_time - self._last_time) < setting.SAMPLE_TIME:
+                continue
+            self._last_time = current_time
+            
             offset = -self._ref.get()[0].get(dname.OFFSET_ANGLE)
             if offset is None:
                 continue
@@ -95,4 +108,4 @@ class FirstRunningNode(Node):
             self._right_motor.ccw(setting.DUTY_BASE)
             self._left_motor.cw(duty)
             
-            sleep(1)
+            sleep(setting.SAMPLE_TIME)
