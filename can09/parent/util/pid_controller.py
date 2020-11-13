@@ -11,6 +11,8 @@ class PIDController:
                  acceptable_moe: float,
                  threshold_i_ctrlr: int) -> None:
         
+        # TODO; The integral controller's limitation should be selectable.
+        
         """Initializes the instance variables"""
         # Setting constants
         self._kp: float = kp
