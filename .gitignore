@@ -6,3 +6,4 @@ __pycache__/
 
 _local.py
 .venv/
+legacy.py
