@@ -4,6 +4,9 @@ NAME_MOTOR_L = "motor_l"
 NAME_MOTOR_R = "motor_r"
 NAME_WHEELS = "wheels"
 
+NAME_BME280 = "bme280"
+NAME_BNO055 = "bno055"
+NAME_GPS = "gps"
 NAME_IM920 = "im920"
 
 NAME_BNO055_RESET = "bno055_reset"

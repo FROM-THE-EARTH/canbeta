@@ -1,14 +1,14 @@
-from typing import Dict
+
+
 from time import sleep, time
 
-import pisat.config.dname as dname
-from pisat.config.type import Logable
 from pisat.core.nav import Node
-from pisat.core.logger.datalogger import DataLogger
-from pisat.actuator.simple_pwm_dc_motor_driver import SimplePWMDCMotorDriver
+from pisat.core.logger.refque import RefQueue
+from pisat.actuator.bd62xx import BD62xx
 
+from can09.parent.model import RunningModel
 import can09.parent.setting as setting
-from can09.parent.util.pid_controller import PIDController
+from can09.parent.util import PIDController
 
 
 class SencondRunningNode(Node):
@@ -16,13 +16,10 @@ class SencondRunningNode(Node):
     
     def enter(self) -> None:
         """Sets up the instance variables"""
-        right_motor = SimplePWMDCMotorDriver(neme="RightMotor")
-        left_motor = SimplePWMDCMotorDriver(name="LeftMotor")
-        self.manager.append(components=[right_motor, left_motor], recursive=True)
         
-        self._ref: DataLogger = self.manager.get_component("DataLogger").refqueue
-        self._right_motor: SimplePWMDCMotorDriver = self.manager.get_component("RightMotor")
-        self._left_motor: SimplePWMDCMotorDriver = self.manager.get_component("LeftMotor")
+        self._ref: RefQueue = self.manager.get_component(setting.NAME_DATA_LOGGER).refqueue
+        self._right_motor: BD62xx = self.manager.get_component(setting.NAME_MOTOR_R)
+        self._left_motor: BD62xx = self.manager.get_component(setting.NAME_MOTOR_L)
         self._last_time: float = 0.
         
         self._pidcontroller = PIDController(setting.KP,
@@ -33,9 +30,9 @@ class SencondRunningNode(Node):
                                             setting.ACCEPTABLE_MOE,
                                             setting.THRESHOLD_I_CTRLR)
     
-    def judge(self, data: Dict[str, Logable]) -> bool:
+    def judge(self, data: RunningModel) -> bool:
         """Returns 'True' if the first goal is reached"""
-        distance = data.get(dname.DISTANCE_CAMERA_DETECTION)
+        distance = data.distance2goal
         if distance is None:
             return False
         
@@ -58,7 +55,7 @@ class SencondRunningNode(Node):
         4. When the first goal is reached, CanSat stops moving.
         """
         while not self.event.is_set():
-            offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
+            offset = self._ref.get()[0].offset_angle2goal
             
             self._last_time = time()
             
@@ -80,7 +77,7 @@ class SencondRunningNode(Node):
                 continue
             self._last_time = current_time
                      
-            offset = self._ref.get()[0].get(dname.OFFSET_ANGLE)
+            offset = self._ref.get()[0].offset_angle2goal
             if offset is None:
                 continue
             
@@ -99,7 +96,7 @@ class SencondRunningNode(Node):
                 continue
             self._last_time = current_time
             
-            offset = -self._ref.get()[0].get(dname.OFFSET_ANGLE)
+            offset = -self._ref.get()[0].offset_angle2goal
             if offset is None:
                 continue
             
