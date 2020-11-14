@@ -1,5 +1,8 @@
 # component name
 NAME_IM920 = "im920"
+NAME_BME280 = "bme280"
+NAME_OPT3002 = "opt3002"
+NAME_GPS = "gps"
 
 NAME_LED = "led"
 

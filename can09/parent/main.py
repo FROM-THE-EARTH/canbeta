@@ -2,7 +2,6 @@
 import pigpio
 
 from pisat.actuator import BD62xx, TwoWheels
-from pisat.adapter import NavigationAdapter, AdapterGroup
 from pisat.comm.transceiver import Im920
 from pisat.core.cansat import CanSat
 from pisat.core.nav import Context
@@ -15,7 +14,7 @@ from pisat.handler import (
     PigpioDigitalInputHandler, PigpioDigitalOutputHandler
 )
 from pisat.handler.pigpio_pwm_handler import PigpioPWMHandler
-from pisat.sensor import Bno055, Bme280, SamM8Q, HcSr4, SensorGroup
+from pisat.sensor import Bno055, Bme280, SamM8Q, HcSr04
 
 from can09.parent.nodes import *
 from can09.parent.setting import *
@@ -52,21 +51,16 @@ def run_parent():
     im920 = Im920(handler_im920, name=NAME_IM920)
 
     # sensor
-    bno055 = Bno055(handler_bno055)
-    bme280 = Bme280(handler_bme280)
-    gps = SamM8Q(handler_gps)
-    sonic = HcSr4(handler_sonic_echo, handler_sonic_trig)
-    sgroup = SensorGroup(bno055, bme280, gps, sonic)
-
-    # adapter
-    nav_adapter = NavigationAdapter(POSITION_GOAL)
-    agroup = AdapterGroup(nav_adapter)
+    bno055 = Bno055(handler_bno055, name=NAME_BNO055)
+    bme280 = Bme280(handler_bme280, name=NAME_BME280)
+    gps = SamM8Q(handler_gps, name=NAME_GPS)
+    sonic = HcSr04(handler_sonic_echo, handler_sonic_trig, name=NAME_SUPERSONIC)
     
-    con = SensorController(sgroup, agroup)
-    que = LogQueue(maxlen=500, dnames=con.dnames)
-    dlogger = DataLogger(con, que)
+    con = SensorController(bno055, bme280, gps, sonic, name=NAME_SENSOR_CONTROLLER)
+    que = LogQueue(maxlen=1000, name=NAME_LOGQUEUE)
+    dlogger = DataLogger(con, que, name=NAME_DATA_LOGGER)
 
-    slogger = SystemLogger()
+    slogger = SystemLogger(name=NAME_SYSTEM_LOGGER)
     slogger.setFileHandler()
 
     # register callable components in Nodes
