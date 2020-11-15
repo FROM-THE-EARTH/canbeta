@@ -22,13 +22,13 @@ class SencondRunningNode(Node):
         self._left_motor: BD62xx = self.manager.get_component(setting.NAME_MOTOR_L)
         self._last_time: float = 0.
         
-        self._pidcontroller = PIDController(setting.KP,
-                                            setting.KI,
-                                            setting.KD,
-                                            setting.MAX_DUTY,
-                                            setting.MIN_DUTY,
-                                            setting.ACCEPTABLE_MOE,
-                                            setting.THRESHOLD_I_CTRLR)
+        self._pidcontroller = PIDController(kp=setting.KP,
+                                            ki=setting.KI,
+                                            kd=setting.KD,
+                                            max_input=setting.MAX_DUTY,
+                                            min_input=setting.MIN_DUTY,
+                                            sse_ratio=setting.SSE_RATIO,
+                                            threshold_i_ctrlr=setting.THRESHOLD_I_CTRLR)
     
     def judge(self, data: RunningModel) -> bool:
         """Returns 'True' if the first goal is reached"""
