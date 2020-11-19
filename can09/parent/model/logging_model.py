@@ -15,9 +15,9 @@ import can09.parent.setting as setting
 class LoggingModel(LinkedDataModelBase):
     press = linked_loggable(Bme280.DataModel.press, setting.NAME_BME280)
     temp = linked_loggable(Bme280.DataModel.temp, setting.NAME_BME280)
-    acc = linked_loggable(Bno055.DataModel.acc_lin, setting.NAME_BNO055, loggable=False)
-    gravity = linked_loggable(Bno055.DataModel.acc_gra, setting.NAME_BNO055, loggable=False)
-    euler = linked_loggable(Bno055.DataModel.euler, setting.NAME_BNO055, loggable=False)
+    acc = linked_loggable(Bno055.DataModel.acc_lin, setting.NAME_BNO055, logging=False)
+    gravity = linked_loggable(Bno055.DataModel.acc_gra, setting.NAME_BNO055, logging=False)
+    euler = linked_loggable(Bno055.DataModel.euler, setting.NAME_BNO055, logging=False)
     altitude_gps = linked_loggable(SamM8Q.DataModel.altitude, setting.NAME_GPS)
     longitude = linked_loggable(SamM8Q.DataModel.longitude, setting.NAME_GPS)
     latitude = linked_loggable(SamM8Q.DataModel.latitude, setting.NAME_GPS)
