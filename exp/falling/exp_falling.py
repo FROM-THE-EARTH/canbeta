@@ -1,8 +1,6 @@
 
 import pigpio
-
 from pisat.actuator import BD62xx, TwoWheels
-from pisat.adapter import NavigationAdapter, AdapterGroup
 from pisat.comm.transceiver import Im920
 from pisat.core.cansat import CanSat
 from pisat.core.nav import Context
@@ -15,13 +13,19 @@ from pisat.handler import (
     PigpioDigitalInputHandler, PigpioDigitalOutputHandler
 )
 from pisat.handler.pigpio_pwm_handler import PigpioPWMHandler
-from pisat.sensor import Bno055, Bme280, SamM8Q, HcSr4, SensorGroup
+from pisat.sensor import Bno055, Bme280, SamM8Q, HcSr04
 
+from can09.parent.model import LoggingModel
 from can09.parent.nodes import *
 from can09.parent.setting import *
 
 
-def run_parent():
+# NOTE For test
+FallingNode.THRESHOLD_RISING_DETECT = 10        # [m]
+FallingNode.THRESHOLD_LANDING_DETECT = 5        # [m]
+
+
+def main():
 
     # device setting
     pi = pigpio.pi()
@@ -31,14 +35,12 @@ def run_parent():
     handler_gps = PyserialSerialHandler(SERIAL_PORT_GPS)
     handler_im920 = PyserialSerialHandler(SERIAL_PORT_IM920)
     
-    handler_motor_L_fin = PigpioPWMHandler(pi, GPIO_MOTOR_L_FIN, freq=MOTOR_PWM_FREQ, range=MOTOR_PWM_RANGE)
-    handler_motor_L_rin = PigpioPWMHandler(pi, GPIO_MOTOR_L_RIN, freq=MOTOR_PWM_FREQ, range=MOTOR_PWM_RANGE)
-    handler_motor_R_fin = PigpioPWMHandler(pi, GPIO_MOTOR_R_FIN, freq=MOTOR_PWM_FREQ, range=MOTOR_PWM_RANGE)
-    handler_motor_R_rin = PigpioPWMHandler(pi, GPIO_MOTOR_R_RIN, freq=MOTOR_PWM_FREQ, range=MOTOR_PWM_RANGE)
+    handler_motor_L_fin = PigpioPWMHandler(pi, GPIO_MOTOR_L_FIN, freq=MOTOR_PWM_FREQ)
+    handler_motor_L_rin = PigpioPWMHandler(pi, GPIO_MOTOR_L_RIN, freq=MOTOR_PWM_FREQ)
+    handler_motor_R_fin = PigpioPWMHandler(pi, GPIO_MOTOR_R_FIN, freq=MOTOR_PWM_FREQ)
+    handler_motor_R_rin = PigpioPWMHandler(pi, GPIO_MOTOR_R_RIN, freq=MOTOR_PWM_FREQ)
     handler_mosfet_para = PigpioDigitalOutputHandler(pi, GPIO_MOSFET_PARA, name=NAME_MOSFET_PARA)
     handler_mosfet_child = PigpioDigitalOutputHandler(pi, GPIO_MOSFET_CHILD, name=NAME_MOSFET_CHILD)
-    handler_bno055_reset = PigpioDigitalOutputHandler(pi, GPIO_BNO055_RESET, default=True, name=NAME_BNO055_RESET)
-    handler_bno055_int = PigpioDigitalInputHandler(pi, GPIO_BNO055_INT, name=NAME_BNO055_INT)
     handler_sonic_trig = PigpioDigitalOutputHandler(pi, GPIO_SONIC_TRIG)
     handler_sonic_echo = PigpioDigitalInputHandler(pi, GPIO_SONIC_ECHO)
     handler_led = PigpioDigitalOutputHandler(pi, GPIO_LED, name=NAME_LED)
@@ -52,36 +54,22 @@ def run_parent():
     im920 = Im920(handler_im920, name=NAME_IM920)
 
     # sensor
-    bno055 = Bno055(handler_bno055)
-    bme280 = Bme280(handler_bme280)
-    gps = SamM8Q(handler_gps)
-    sonic = HcSr4(handler_sonic_echo, handler_sonic_trig)
-    sgroup = SensorGroup(bno055, bme280, gps, sonic)
-
-    # adapter
-    nav_adapter = NavigationAdapter(POSITION_GOAL)
-    agroup = AdapterGroup(nav_adapter)
+    bno055 = Bno055(handler_bno055, name=NAME_BNO055)
+    bme280 = Bme280(handler_bme280, name=NAME_BME280)
+    gps = SamM8Q(handler_gps, name=NAME_GPS)
+    sonic = HcSr04(handler_sonic_echo, handler_sonic_trig, name=NAME_SUPERSONIC)
     
-    con = SensorController(sgroup, agroup)
-    que = LogQueue(maxlen=500, dnames=con.dnames)
-    dlogger = DataLogger(con, que)
+    con = SensorController(LoggingModel, bno055, bme280, gps, sonic, name=NAME_SENSOR_CONTROLLER)
+    que = LogQueue(LoggingModel, maxlen=1000, name=NAME_LOGQUEUE)
+    dlogger = DataLogger(con, que, name=NAME_DATA_LOGGER)
 
-    slogger = SystemLogger()
+    slogger = SystemLogger(name=NAME_SYSTEM_LOGGER)
     slogger.setFileHandler()
 
     # register callable components in Nodes
-    manager = ComponentManager(motor_L, 
-                               motor_R, 
-                               wheels, 
-                               im920, 
-                               handler_bno055_reset,
-                               handler_bno055_int,
-                               handler_mosfet_para,
-                               handler_mosfet_child,
-                               handler_led,
-                               dlogger, 
-                               slogger, 
-                               recursive=True)
+    manager = ComponentManager(motor_L, motor_R, wheels, im920, handler_mosfet_para,
+                               handler_mosfet_child, handler_led, dlogger, slogger, 
+                               recursive=True, name=NAME_MANAGER)
 
     # context setting
     context = Context({
@@ -96,4 +84,4 @@ def run_parent():
 
 
 if __name__ == "__main__":
-    run_parent()
+    main()
