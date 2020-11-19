@@ -34,7 +34,7 @@ def main():
     handler_bno055 = PigpioI2CHandler(pi, setting.I2C_ADDRESS_BNO055)
     handler_bme280 = PigpioI2CHandler(pi, setting.I2C_ADDRESS_BME280)
     handler_gps = PyserialSerialHandler(setting.SERIAL_PORT_GPS)
-    handler_im920 = PyserialSerialHandler(setting.SERIAL_PORT_IM920)
+    # handler_im920 = PyserialSerialHandler(setting.SERIAL_PORT_IM920)
     
     handler_motor_L_fin = PigpioPWMHandler(pi, setting.GPIO_MOTOR_L_FIN, setting.MOTOR_PWM_FREQ)
     handler_motor_L_rin = PigpioPWMHandler(pi, setting.GPIO_MOTOR_L_RIN, setting.MOTOR_PWM_FREQ)
@@ -52,7 +52,7 @@ def main():
     wheels = TwoWheels(motor_L, motor_R, name=setting.NAME_WHEELS)
 
     # transceiver
-    im920 = Im920(handler_im920, name=setting.NAME_IM920)
+    # im920 = Im920(handler_im920, name=setting.NAME_IM920)
 
     # sensor
     bno055 = Bno055(handler_bno055, name=setting.NAME_BNO055)
@@ -68,7 +68,7 @@ def main():
     slogger.setFileHandler()
 
     # register callable components in Nodes
-    manager = ComponentManager(motor_L, motor_R, wheels, im920, handler_mosfet_para,
+    manager = ComponentManager(motor_L, motor_R, wheels, handler_mosfet_para,
                                handler_mosfet_child, handler_led, dlogger, slogger, 
                                recursive=True, name=setting.NAME_MANAGER)
 
