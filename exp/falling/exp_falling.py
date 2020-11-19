@@ -21,9 +21,9 @@ import can09.parent.setting as setting
 
 
 # NOTE For test
-setting.ALTITUDE_GROUND = 10                    # [m]
-FallingNode.THRESHOLD_RISING_DETECT = 10        # [m]
-FallingNode.THRESHOLD_LANDING_DETECT = 5        # [m]
+setting.ALTITUDE_GROUND = 20                    # [m]
+FallingNode.THRESHOLD_RISING_DETECT = 5        # [m]
+FallingNode.THRESHOLD_LANDING_DETECT = 2        # [m]
 
 
 def main():
@@ -56,6 +56,7 @@ def main():
 
     # sensor
     bno055 = Bno055(handler_bno055, name=setting.NAME_BNO055)
+    bno055.change_operation_mode(Bno055.OperationMode.NDOF)
     bme280 = Bme280(handler_bme280, name=setting.NAME_BME280)
     gps = SamM8Q(handler_gps, name=setting.NAME_GPS)
     sonic = HcSr04(handler_sonic_echo, handler_sonic_trig, name=setting.NAME_SUPERSONIC)
