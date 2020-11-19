@@ -3,29 +3,30 @@
 """This is a test file for limit sensitivity method.
 """
 
-from time import time, sleep
-import pigpio
+import time
 
+import pigpio
+from pisat.actuator import BD62xx
+from pisat.calc import Navigator, Position
 from pisat.core.logger import SensorController
 from pisat.handler import PigpioI2CHandler, PyserialSerialHandler, PigpioPWMHandler
-from pisat.calc import Navigator, Position
-from pisat.model import cached_loggable, LinkedDataModelBase, linked_loggable
+from pisat.model import (
+    loggable, cached_loggable, LinkedDataModelBase, linked_loggable
+)
 from pisat.sensor import SamM8Q, Bno055
 from pisat.util.deco import cached_property
-from pisat.actuator import PWMDCMotorDriver
+
 import can09.parent.setting as setting
 from can09.parent.util import PIDController
 
-NAME_BNO055 = "bno055"
-NAME_GPS = "gps"
 
 class RunningModel(LinkedDataModelBase):
 
     TEMP_GOAL = [0., 0.]
     
-    longitude = linked_loggable(SamM8Q.DataModel.longitude, NAME_GPS)
-    latitude = linked_loggable(SamM8Q.DataModel.latitude, NAME_GPS)
-    mag = linked_loggable(Bno055.DataModel.mag, NAME_BNO055)
+    longitude = linked_loggable(SamM8Q.DataModel.longitude, setting.NAME_GPS)
+    latitude = linked_loggable(SamM8Q.DataModel.latitude, setting.NAME_GPS)
+    euler = linked_loggable(Bno055.DataModel.euler, setting.NAME_BNO055, logging=False)
     
     def setup(self) -> None:
         self._navi_goal_temp = Navigator(Position(*self.TEMP_GOAL))
@@ -33,43 +34,44 @@ class RunningModel(LinkedDataModelBase):
     @cached_property
     def position(self):
         return Position(self.longitude, self.latitude, degree=True)
-    
-    def calc_heading(self, mag) -> float:
-        pass
+
+    @loggable
+    def heading(self):
+        return self.euler[0]
     
     @cached_loggable
     def offset_angle2goal(self):
-        heading = self.calc_heading(self.mag)
-        return self._navi_goal.delta_angle(self.position, heading)
+        return self._navi_goal.delta_angle(self.position, self.heading)
 
 
-def main() -> None:
+def main():
+    
     kp = float(input('Enter Kp: '))
     ex_time = float(input('Enter experiment time [sec]: '))
     
-    pi = pigpio.pi()
-    
-    handler_bno055 = PigpioI2CHandler(pi, 0x28)
-    handler_gps = PyserialSerialHandler("/dev/serial0", baudrate=9600)
-    handler_motor_l_fin = PigpioPWMHandler(pi, 12, 40000)
-    handler_motor_l_rin = PigpioPWMHandler(pi, 18, 40000)
-    handler_motor_r_fin = PigpioPWMHandler(pi, 13, 40000)
-    handler_motor_r_rin = PigpioPWMHandler(pi, 19, 40000)
-
-    bno055 = Bno055(handler_bno055, name=NAME_BNO055)
-    gps = SamM8Q(handler_gps, name=NAME_GPS)
+    # device setting
+    pi = pigpio.pi()    
+    handler_bno055 = PigpioI2CHandler(pi, setting.I2C_ADDRESS_BNO055)
+    handler_gps = PyserialSerialHandler(setting.SERIAL_PORT_GPS, baudrate=9600)
+    handler_motor_l_fin = PigpioPWMHandler(pi, setting.GPIO_MOTOR_L_FIN, setting.MOTOR_PWM_FREQ)
+    handler_motor_l_rin = PigpioPWMHandler(pi, setting.GPIO_MOTOR_L_RIN, setting.MOTOR_PWM_FREQ)
+    handler_motor_r_fin = PigpioPWMHandler(pi, setting.GPIO_MOTOR_R_FIN, setting.MOTOR_PWM_FREQ)
+    handler_motor_r_rin = PigpioPWMHandler(pi, setting.GPIO_MOTOR_R_RIN, setting.MOTOR_PWM_FREQ)
+    bno055 = Bno055(handler_bno055, name=setting.NAME_BNO055)
+    gps = SamM8Q(handler_gps, name=setting.NAME_GPS)
     sencon = SensorController(RunningModel, bno055, gps)
-    data = sencon.read()
-    motor_l = PWMDCMotorDriver(handler_motor_l_fin, handler_motor_l_rin)
-    motor_r = PWMDCMotorDriver(handler_motor_r_fin, handler_motor_r_rin)
+    motor_l = BD62xx(handler_motor_l_fin, handler_motor_l_rin, name=setting.NAME_MOTOR_L)
+    motor_r = BD62xx(handler_motor_r_fin, handler_motor_r_rin, name=setting.NAME_MOTOR_R)
     
+    # testing
+    data = sencon.read()
     pidcontroller = PIDController(kp=kp)
-    first_time = time()
+    first_time = time.time()
     last_time = first_time
     delta_time = 0.
     
     while delta_time < ex_time:
-        current_time = time()
+        current_time = time.time()
         if (current_time - last_time) < setting.SAMPLE_TIME:
             continue
         last_time = current_time
@@ -86,10 +88,11 @@ def main() -> None:
         last_time = current_time
         delta_time = first_time - current_time
             
-        sleep(setting.SAMPLE_TIME)
+        time.sleep(setting.SAMPLE_TIME)
         
     motor_r.brake()
     motor_l.brake()
     
+
 if __name__ == '__main__':
     main()
