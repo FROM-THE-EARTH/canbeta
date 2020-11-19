@@ -80,7 +80,7 @@ class CatCommand(CommandBase):
         # フォームを作成
         form = RequestForm()
         form.reception_num = params.reception_num
-        form.command = ResponseBase
+        form.command = ResponseBase.COMMAND
         form.args = (data_concatenated,)
 
         # フォームからデータを生成
