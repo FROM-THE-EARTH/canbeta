@@ -1,52 +1,86 @@
 
-from typing import Dict, Any
 from collections import deque
+import statistics
+from typing import List
 
-import pisat.config.dname as dname
-from pisat.core.logger.systemlogger import SystemLogger
 from pisat.core.nav import Node
-from pisat.core.logger import DataLogger
 
+from can09.parent.model import FallingModel
 import can09.parent.setting as setting
 
+
 class FallingNode(Node):
+    
+    model = FallingModel
+    
+    LENGTH_JUDGING_DATA = 10
+    
+    THRESHOLD_RISING_DETECT = 30        # [m]
+    THRESHOLD_LANDING_DETECT = 10       # [m]
+    THRESHOLD_COUNT_GOOD_JUDGED = 10
 
-    def enter(self):
-        self.dlogger: DataLogger = self.manager.get_component("DataLogger")
-        self.slogger: SystemLogger = self.manager.get_component("SystemLogger")
-        self.que = deque(maxlen=100)
-        
-        self.value_good_judged = 0
+    def enter(self):        
+        # for judging
+        self.que = deque(maxlen=self.LENGTH_JUDGING_DATA)
+        self.is_falling: bool = False
+        self.count_good_judged_rising: int = 0
+        self.count_good_judged_falling: int = 0
+        self.value_good_judged_rising: List[float] = []
+        self.value_good_judged_falling: List[float] = []
 
-    def judge(self, data: Dict[str, Any]) -> bool:
+    def judge(self, data: FallingModel) -> bool:
 
         # getting data
-        sealevel = data.get(dname.ALTITUDE_SEALEVEL)
-        if sealevel is None:
+        if data.press is None or data.temp is None:
+            return False
+        
+        # median filter
+        self.que.appendleft(data.altitude)
+        if len(self.que) < self.LENGTH_JUDGING_DATA:
+            return False
+        median = statistics.median(self.que)
+        
+        # Rising Assessment
+        # 1. Judging if data through median filter is bigger than the rising threshold.
+        # 2. Judging if 'good' data comes THRESHOLD_COUNT_GOOD_JUDGED times in a row.
+        # NOTE This assessment always returns False because the true purpose of this Node
+        #      is to judge falling the body.
+        if not self.is_falling:
+            if median < self.THRESHOLD_RISING_DETECT:
+                self.value_good_judged_rising.append(median)
+                self.count_good_judged_rising += 1
+                
+                if self.count_good_judged_rising >= self.THRESHOLD_COUNT_GOOD_JUDGED:
+                    self.is_falling = True
+            else:
+                # Reset counted data
+                if self.count_good_judged_rising:
+                    self.count_good_judged_rising = 0
+                    self.value_good_judged_rising.clear()
+                    
             return False
 
-        # prevent outliers
-        self.que.appendleft(sealevel)
+        # Falling Assessment
+        # 1. Judging if data through median filter is smaller than the falling threshold.
+        # 2. Judging if 'good' data comes THRESHOLD_COUNT_GOOD_JUDGED times in a row.
+        if self.is_falling:
+            if median < self.THRESHOLD_LANDING_DETECT:
+                self.value_good_judged_falling.append(median)
+                self.count_good_judged_falling += 1
+                
+                if self.count_good_judged_falling >= self.THRESHOLD_COUNT_GOOD_JUDGED:
+                    return True
+                else:
+                    return False
+            else:
+                # Reset counted data
+                if self.count_good_judged_falling:
+                    self.count_good_judged_falling = 0
+                    self.value_good_judged_falling.clear()
+                return False
 
-        length = len(self.que)
-        if length < 50:
-            return False
-    
-        quater_1st = length // 4
-        quater_3rd = quater_1st * 3
-        dataset = sorted(self.que)
-        sum_data = sum(dataset[quater_1st:quater_3rd])
-        average = sum_data / (quater_3rd - quater_1st)
-
-        # assessment
-        if abs(setting.THRESHOLD_LANDING_DETECT - average) < 1:
-            self.value_good_judged = average
-            return True
-        else:
-            return False
-
-    def control(self):
-        pass
-    
     def exit(self) -> None:
-        self.slogger.info(f"Landing, data: {self.value_good_judged}")
+        slogger = self.manager.get_component(setting.NAME_SYSTEM_LOGGER)
+        values_rising = [round(n, 2) for n in self.value_good_judged_rising]
+        values_falling = [round(n, 2) for n in self.value_good_judged_falling]
+        slogger.info(f"Landing detected, rising data: {values_rising}, falling data: {values_falling}")
