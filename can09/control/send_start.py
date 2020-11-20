@@ -6,7 +6,7 @@ import sys
 from pisat.handler import PyserialSerialHandler
 from pisat.comm.transceiver import Im920, SocketTransceiver
 
-from can09.command import StartCommand
+from can09.child.command import StartCommand
 import can09.control.setting as control_setting
 from can09.server import RequestForm, Request
 import can09.setting as whole_setting
@@ -37,6 +37,7 @@ def main():
     form.command = StartCommand
     
     data_sending = Request.make_request(socket.addr_mine, form)
+    print(data_sending)
     data_sending = codecs.encode(data_sending, whole_setting.ENCODING_IM920)
     
     socket.send(data_sending)
