@@ -6,13 +6,13 @@ from pisat.core.cansat import CanSat
 from pisat.core.nav import Context
 from pisat.core.manager import ComponentManager
 from pisat.core.logger import (
-    DataLogger, SensorController, LogQueue, SystemLogger
+    DataLogger, LogQueue, SystemLogger
 )
 from pisat.handler import (
     PigpioI2CHandler, PyserialSerialHandler,
-    PigpioDigitalInputHandler, PigpioDigitalOutputHandler
+    PigpioDigitalInputHandler, PigpioDigitalOutputHandler,
+    PigpioPWMHandler
 )
-from pisat.handler.pigpio_pwm_handler import PigpioPWMHandler
 from pisat.sensor import Bno055, Bme280, SamM8Q, HcSr04
 
 from can09.parent.model import LoggingModel
@@ -27,8 +27,8 @@ def run_parent():
     
     handler_bno055 = PigpioI2CHandler(pi, I2C_ADDRESS_BNO055)
     handler_bme280 = PigpioI2CHandler(pi, I2C_ADDRESS_BME280)
-    handler_gps = PyserialSerialHandler(SERIAL_PORT_GPS)
-    handler_im920 = PyserialSerialHandler(SERIAL_PORT_IM920)
+    handler_gps = PyserialSerialHandler(SERIAL_PORT_GPS, baudrate=BAUDRATE_GPS)
+    handler_im920 = PyserialSerialHandler(SERIAL_PORT_IM920, baudrate=BAUDRATE_IM920)
     
     handler_motor_L_fin = PigpioPWMHandler(pi, GPIO_MOTOR_L_FIN, freq=MOTOR_PWM_FREQ)
     handler_motor_L_rin = PigpioPWMHandler(pi, GPIO_MOTOR_L_RIN, freq=MOTOR_PWM_FREQ)
@@ -55,9 +55,8 @@ def run_parent():
     gps = SamM8Q(handler_gps, name=NAME_GPS)
     sonic = HcSr04(handler_sonic_echo, handler_sonic_trig, name=NAME_SUPERSONIC)
     
-    con = SensorController(LoggingModel, bno055, bme280, gps, sonic, name=NAME_SENSOR_CONTROLLER)
     que = LogQueue(LoggingModel, maxlen=1000, name=NAME_LOGQUEUE)
-    dlogger = DataLogger(con, que, name=NAME_DATA_LOGGER)
+    dlogger = DataLogger(que, bno055, bme280, gps, sonic, name=NAME_DATA_LOGGER)
 
     slogger = SystemLogger(name=NAME_SYSTEM_LOGGER)
     slogger.setFileHandler()

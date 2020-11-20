@@ -41,6 +41,9 @@ I2C_ADDRESS_OPT3002 = 0x68
 SERIAL_PORT_GPS = "/dev/serial0"
 SERIAL_PORT_IM920 = "/dev/ttyUSB0"
 
+BAUDRATE_IM920 = 19200
+BAUDRATE_GPS = 9600
+
 # TODO Set parameters below
 # Threshold setting
 THRESHOLD_CAMERA_DETECTION = 1.
@@ -59,6 +62,3 @@ SAMPLE_TIME = 1.
 # Longitude and Latitude
 POSITION_GOAL = (0., 0.)
 POSITION_CHILD = (0., 0.)
-
-# Altitude of ground
-ALTITUDE_GROUND = 0     # [m]
