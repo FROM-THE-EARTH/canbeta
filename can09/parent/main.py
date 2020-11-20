@@ -55,7 +55,7 @@ def run_parent():
     gps = SamM8Q(handler_gps, name=NAME_GPS)
     sonic = HcSr04(handler_sonic_echo, handler_sonic_trig, name=NAME_SUPERSONIC)
     
-    que = LogQueue(LoggingModel, maxlen=1000, name=NAME_LOGQUEUE)
+    que = LogQueue(LoggingModel, maxlen=10000, name=NAME_LOGQUEUE)
     dlogger = DataLogger(que, bno055, bme280, gps, sonic, name=NAME_DATA_LOGGER)
 
     slogger = SystemLogger(name=NAME_SYSTEM_LOGGER)
@@ -77,7 +77,7 @@ def run_parent():
                         GoalSearchNode:     {True: GoalDetectNode,      False: GoalSearchNode},
                         GoalDetectNode:     {True: None,                False: GoalDetectNode}
                     },
-                    start=FallingNode)
+                    start=MissionStandbyNode)
 
     # build a cansat
     cansat = CanSat(context, manager, dlogger=dlogger, slogger=slogger)
