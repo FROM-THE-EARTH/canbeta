@@ -153,7 +153,7 @@ socket = socket_transceiver_client.create_socket(server_address)
 from pisat.comm.transceiver import CommSocket
 
 from can09.server import CommandBase, ResponseBase
-from can09.server import RequestForm, RequestParam, Request
+from can09.server import RequestForm, RequestParams, Request
 
 class CatCommand(CommandBase):
     COMMAND = b"BB"
@@ -182,10 +182,12 @@ class CatCommand(CommandBase):
 このコマンドをリクエストとしてフォーマットしてサーバーに送るためには以下のようにします．
 
 ```python
+import codecs
+
 from pisat.comm.transceiver import Im920
 
 from can09.server import CommandBase, ResponseBase
-from can09.server import RequestForm, RequestParam, Request
+from can09.server import RequestForm, RequestParams, Request
 
 # ソケット作成部分は省略
 
@@ -201,7 +203,10 @@ form.command = CatCommand
 form.args = args
 
 # フォーマット済みデータを生成
-data_sending = Request.make_request(socket, form)
+data_sending = Request.make_request(socket.addr_yours, form)
+
+# IM920 はASCII文字の16進数表現なので追加で変換
+data_sending = codec.encode(data_sending, "hex_codec")
 
 # データ送信
 socket.send(data_sending)
