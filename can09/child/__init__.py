@@ -1,1 +1,0 @@
-from can09.child.main import run_child

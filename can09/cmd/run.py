@@ -4,8 +4,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.getcwd()))
 
-from can09.parent import run_parent
-from can09.child import run_child
+from can09.parent.main import run_parent
+from can09.child.main import run_child
 
 
 parser = argparse.ArgumentParser()
