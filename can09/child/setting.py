@@ -1,12 +1,12 @@
 # component name
 NAME_IM920 = "im920"
+NAME_SOCKET_TRANSCEIVER = "socket_transceiver"
 NAME_BME280 = "bme280"
 NAME_OPT3002 = "opt3002"
 NAME_GPS = "gps"
 
 NAME_LED = "led"
 
-NAME_SENSOR_CONTROLLER = "sensor_controller"
 NAME_LOGQUEUE = "logqueue"
 NAME_DATA_LOGGER = "dlogger"
 NAME_SYSTEM_LOGGER = "slogger"
@@ -19,3 +19,6 @@ I2C_ADDRESS_BME280 = 0x76
 I2C_ADDRESS_OPT3002 = 0x68
 SERIAL_PORT_GPS = "/dev/serial0"
 SERIAL_PORT_IM920 = "/dev/ttyUSB0"
+
+BAUDRATE_GPS = 9600
+BAUDRATE_IM920 = 19200
