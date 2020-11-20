@@ -41,16 +41,20 @@ def run_parent():
     handler_led = PigpioDigitalOutputHandler(pi, GPIO_LED, name=NAME_LED)
 
     # actuator
-    motor_L = BD62xx(handler_motor_L_fin, handler_motor_L_rin, freq=MOTOR_PWM_FREQ, name=NAME_MOTOR_L)
-    motor_R = BD62xx(handler_motor_R_fin, handler_motor_R_rin, freq=MOTOR_PWM_FREQ, name=NAME_MOTOR_R)
+    motor_L = BD62xx(handler_motor_L_fin, handler_motor_L_rin, name=NAME_MOTOR_L)
+    motor_R = BD62xx(handler_motor_R_fin, handler_motor_R_rin, name=NAME_MOTOR_R)
     wheels = TwoWheels(motor_L, motor_R, name=NAME_WHEELS)
 
     # transceiver
     im920 = Im920(handler_im920, name=NAME_IM920)
+    im920.clear_buf()
     socket_transceiver = SocketTransceiver(im920, certain=True, name=NAME_SOCKET_TRANSCEIVER)
 
     # sensor
     bno055 = Bno055(handler_bno055, name=NAME_BNO055)
+    bno055.change_operation_mode(Bno055.OperationMode.NDOF)
+    bno055.remap_axis(Bno055.Axis.Y, Bno055.Axis.X, Bno055.Axis.Z)
+    bno055.remap_sign(y=Bno055.AxisSign.NEGATIVE)
     bme280 = Bme280(handler_bme280, name=NAME_BME280)
     gps = SamM8Q(handler_gps, name=NAME_GPS)
     sonic = HcSr04(handler_sonic_echo, handler_sonic_trig, name=NAME_SUPERSONIC)

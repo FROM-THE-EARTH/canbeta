@@ -18,9 +18,10 @@ class MissionStandbyNode(Node):
         socket = self.transceiver.listen()
         if socket is None:
             return False
-        
+
         params = Request.parse_request(socket)
-        if params.address == whole_setting.ADDR_IM920_CONTROL \
+        
+        if socket.addr_yours == whole_setting.ADDR_IM920_CONTROL \
             and params.command == whole_setting.COMMAND_START:
             return True
         else:
