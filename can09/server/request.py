@@ -39,6 +39,7 @@ class CommandBase:
     
     COMMAND = b""
     LEN_ARGS = CommandParams.ARGS_NOTHING
+    LEN_RESPONSE = CommandParams.ARGS_NOTHING
     
     @classmethod
     def exec(cls, socket: CommSocket, params: RequestParams) -> None:
