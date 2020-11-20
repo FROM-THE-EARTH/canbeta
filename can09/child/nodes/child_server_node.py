@@ -25,7 +25,8 @@ class ChildServerNode(Node):
         self.dlogger: DataLogger = self.manager.get_component(child_setting.NAME_DATA_LOGGER)
         
         server = CommandServer(self.transceiver, Request)
-        server.append(RegisterStateCommand, RequestDataCommand, RequestStateCommand)
+        # server.append(RegisterStateCommand, RequestDataCommand, RequestStateCommand)
+        server.append(RegisterStateCommand, RequestStateCommand)
         
         thread = threading.Thread(target=self.logging)
         
