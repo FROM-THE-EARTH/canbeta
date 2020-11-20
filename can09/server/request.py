@@ -127,9 +127,11 @@ class Request:
     
     LEN_BYTE_HEAD = 4    
 
+    # NOTE
+    # This method returns in UTF-8
     @classmethod
     def make_request(cls, 
-                     socket: CommSocket,
+                     addr: Tuple[Union[str, int]],
                      form: RequestForm) -> bytes:
         data = bytearray()
         
@@ -137,11 +139,11 @@ class Request:
         data.extend(cls.make_head(form))
         
         # address
-        data.extend(cls.make_seq_param(socket, socket.addr_mine))
+        data.extend(cls.make_seq_param(addr))
         data.extend(cls.SEPARATOR)
         
         # sizes of each args
-        data.extend(cls.make_seq_param(socket, form.size_args))
+        data.extend(cls.make_seq_param(form.size_args))
         data.extend(cls.SEPARATOR)
         
         # args
@@ -160,13 +162,13 @@ class Request:
         return head
     
     @classmethod
-    def make_seq_param(cls, socket: CommSocket, seq: Sequence) -> bytes:
+    def make_seq_param(cls, seq: Sequence) -> bytes:
         data = []
         for val in seq:
             if isinstance(val, int):
                 val = format(val, cls.TO_HEX)
 
-            data.append(socket.encode(val))
+            data.append(val.encode())
         
         return cls.SEMI_SEPARATOR.join(data)
 
