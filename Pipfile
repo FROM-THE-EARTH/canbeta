@@ -4,16 +4,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-autopep8 = "*"
-memory-profiler = "*"
-matplotlib = "*"
-ipython = "*"
-ipykernel = "*"
 
 [packages]
-pisat = {git = "https://github.com/jjj999/pisat.git"}
-pigpio = "*"
 numpy = "*"
+pigpio = "*"
+pisat = {git = "https://github.com/jjj999/pisat.git"}
 
 [requires]
 python_version = "3.7"
