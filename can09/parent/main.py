@@ -1,7 +1,7 @@
 
 import pigpio
 from pisat.actuator import BD62xx, TwoWheels
-from pisat.comm.transceiver import Im920
+from pisat.comm.transceiver import Im920, SocketTransceiver
 from pisat.core.cansat import CanSat
 from pisat.core.nav import Context
 from pisat.core.manager import ComponentManager
@@ -47,6 +47,7 @@ def run_parent():
 
     # transceiver
     im920 = Im920(handler_im920, name=NAME_IM920)
+    socket_transceiver = SocketTransceiver(im920, certain=True, name=NAME_SOCKET_TRANSCEIVER)
 
     # sensor
     bno055 = Bno055(handler_bno055, name=NAME_BNO055)
@@ -62,8 +63,8 @@ def run_parent():
     slogger.setFileHandler()
 
     # register callable components in Nodes
-    manager = ComponentManager(motor_L, motor_R, wheels, im920, handler_mosfet_para,
-                               handler_mosfet_child, handler_led, dlogger, slogger, 
+    manager = ComponentManager(motor_L, motor_R, wheels, im920, socket_transceiver, 
+                               handler_mosfet_para, handler_mosfet_child, handler_led, dlogger, slogger, 
                                recursive=True, name=NAME_MANAGER)
 
     # context setting
