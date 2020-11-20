@@ -181,7 +181,10 @@ class Request:
         size_args_raw = cls.extract_param(socket).split(cls.SEMI_SEPARATOR)
         
         args = []
-        for length in map(lambda x: int(x, cls.FROM_HEX), size_args_raw):
+        for size_raw in size_args_raw:
+            if not len(size_raw):
+                continue
+            length = int(size_raw, cls.FROM_HEX)
             args.append(cls.certain_recv(socket, length))
             
         RequestParams.reception_num = reception_num
