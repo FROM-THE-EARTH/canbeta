@@ -38,7 +38,7 @@ from can09.server import Request
 ```python
 from can09.server import CommandServer
 
-server = CommandServer(im920_server, Request)
+server = CommandServer(socket_transceiver_server, Request)
 ```
 
 で行えることが出来る．
