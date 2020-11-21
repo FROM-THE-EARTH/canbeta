@@ -26,23 +26,31 @@ class RunningModel(LinkedDataModelBase):
         
     @cached_property
     def position(self):
+        if self.latitude is None or self.longitude is None:
+            return None
         return Position(self.longitude, self.latitude, degree=True)
         
     @cached_loggable
     def distance2goal(self):
+        if self.latitude is None or self.longitude is None:
+            return None
         return self._navi_goal.delta_distance(self.postition)
     
     @cached_loggable
     def offset_angle2goal(self):
-        heading = self.calc_heading(self.mag)
+        if self.latitude is None or self.longitude is None:
+            return None
         return self._navi_goal.delta_angle(self.position, self.heading)
     
     @cached_loggable
     def distance2child(self):
+        if self.latitude is None or self.longitude is None:
+            return None
         postition = Position(self.longitude, self.latitude, degree=True)
         return self._navi_child.delta_distance(postition)
     
     @cached_loggable
     def offset_angle2child(self):
-        heading = self.calc_heading(self.mag)
+        if self.latitude is None or self.longitude is None:
+            return None
         return self._navi_child.delta_angle(self.position, self.heading)
