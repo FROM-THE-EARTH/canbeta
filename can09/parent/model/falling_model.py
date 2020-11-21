@@ -16,4 +16,5 @@ class FallingModel(LinkedDataModelBase):
     
     @cached_loggable
     def altitude(self) -> float:
+        print(f"real : {press2alti(self.press, self.temp)}")
         return press2alti(self.press, self.temp) - whole_setting.ALTITUDE_GROUND

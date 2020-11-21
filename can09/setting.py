@@ -1,7 +1,7 @@
 
 
 # TODO Altitude of ground
-ALTITUDE_GROUND = 0     # [m]
+ALTITUDE_GROUND = -82.5     # [m]
 
 # IM920 ID
 IM920_ID_PARENT = "37B6"

@@ -15,8 +15,8 @@ class FallingNode(Node):
     
     LENGTH_JUDGING_DATA = 10
     
-    THRESHOLD_RISING_DETECT = 30        # [m]
-    THRESHOLD_LANDING_DETECT = 10       # [m]
+    THRESHOLD_RISING_DETECT = 1        # [m]
+    THRESHOLD_LANDING_DETECT = 1       # [m]
     THRESHOLD_COUNT_GOOD_JUDGED = 10
 
     def enter(self):        
@@ -35,10 +35,12 @@ class FallingNode(Node):
             return False
         
         # median filter
+        print(data.altitude)
         self.que.appendleft(data.altitude)
         if len(self.que) < self.LENGTH_JUDGING_DATA:
             return False
         median = statistics.median(self.que)
+        print(median)
         
         # Rising Assessment
         # 1. Judging if data through median filter is bigger than the rising threshold.
@@ -46,7 +48,7 @@ class FallingNode(Node):
         # NOTE This assessment always returns False because the true purpose of this Node
         #      is to judge falling the body.
         if not self.is_falling:
-            if median < self.THRESHOLD_RISING_DETECT:
+            if median > self.THRESHOLD_RISING_DETECT:
                 self.value_good_judged_rising.append(median)
                 self.count_good_judged_rising += 1
                 

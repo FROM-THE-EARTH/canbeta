@@ -15,7 +15,7 @@ bno055.change_operation_mode(Bno055.OperationMode.NDOF)
 デバイスファイルを読み書きする権限が付与されていない可能性があります．以下のコマンドを実行してみてください．
 
 ```
-$ sudo chmod 7777 (デバイス名)
+$ sudo chmod 777 (デバイス名)
 ```
 
 ## SAM-M8Q のデータが取れない

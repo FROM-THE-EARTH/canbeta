@@ -11,7 +11,7 @@ class ParaSeparateNode(Node):
     
     model = None
     
-    THRESHOLD_HEATING_TIME = 10.    # [sec]
+    THRESHOLD_HEATING_TIME = 5.    # [sec]
 
     def enter(self):
         self.fethandler: PigpioDigitalOutputHandler \
@@ -28,5 +28,7 @@ class ParaSeparateNode(Node):
             return False
 
     def exit(self):
-        self.slogger.info("Parent stops heating and separates the parachute.")
-        self.fethander.set_low()
+        self.fethandler.set_low()
+        
+        slogger = self.manager.get_component(setting.NAME_SYSTEM_LOGGER)
+        slogger.info("Parent stops heating and separates the parachute.")

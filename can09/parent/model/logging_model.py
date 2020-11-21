@@ -9,6 +9,7 @@ from pisat.sensor import (
     Bme280, Bno055, SamM8Q
 )
 
+import can09.setting as whole_setting
 import can09.parent.setting as setting
 
 
@@ -25,6 +26,10 @@ class LoggingModel(LinkedDataModelBase):
     @cached_loggable
     def altitude(self):
         return press2alti(self.press, self.temp)
+
+    @cached_loggable
+    def altitude_relative(self):
+        return self.altitude - whole_setting.ALTITUDE_GROUND
     
     @loggable
     def acc_x(self):
