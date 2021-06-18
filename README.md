@@ -1,3 +1,5 @@
+[![CanSat Beta](docs/res/body.jpg)](https://FROM-THE-EARTH.github.io/canbeta)
+
 # canbeta
 
 東北大学 [FTE](https://www.fte-tohoku.org/) CanSat チーム9期代のプロジェクトです．
