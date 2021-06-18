@@ -5,7 +5,6 @@ dist/
 *.drawio
 *.egg-info/
 .env
-*.log
 __pycache__/
 site/
 .vscode/
