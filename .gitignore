@@ -1,9 +1,15 @@
-.vscode
 Pipfile.lock
+bigdata*
+build/
+dist/
+*.drawio
+*.egg-info/
+.env
+*.log
 __pycache__/
+site/
+.vscode/
+playground/
 
 .DS_Store
-
-_local.py
 .venv/
-legacy.py

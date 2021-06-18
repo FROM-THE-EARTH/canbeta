@@ -4,11 +4,16 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+mkdocs-material = "*"
 
 [packages]
+click = "*"
 numpy = "*"
 pigpio = "*"
-pisat = {git = "https://github.com/jjj999/pisat.git"}
+pisat = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+test = "python -m unittest discover -v"

@@ -1,0 +1,66 @@
+site_name: canbeta
+site_description: CanSat developed by FTE 9th.
+site_url: https://FROM-THE-EARTH.github.io/canbeta/
+
+docs_dir: docs
+repo_url: https://github.com/FROM-THE-EARTH/canbeta
+repo_name: FROM-THE-EARTH/canbeta
+copyright: Copyright &copy; FTE 9th CanSat Team
+
+theme:
+  name: material
+  logo: res/logo.jpg
+  favicon: res/logo.jpg
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.expand
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+  language: ja
+  palette:
+    primary: slate
+
+nav:
+- Home: index.md
+- Project:
+  - project/index.md
+- Development:
+  - dev/index.md
+- CLI: cli.md
+- Trouble Shootings: trouble_shootings.md
+- Learning:
+  - learning/index.md
+  - ソフトウェア一般:
+    - learning/software/index.md
+  - チーム開発:
+    - learning/team/index.md
+  - Python:
+    - learning/python/index.md
+  - ロボットプログラミング:
+    - learning/robot/index.md
+  - 回路設計:
+    - learning/circuit/index.md
+  - Raspberry Pi:
+    - learning/raspi/index.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra:
+  alternate:
+    - name: 日本語
+      link: /
+      lang: ja
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/FROM-THE-EARTH/canbeta
+
+plugins:
+  - search

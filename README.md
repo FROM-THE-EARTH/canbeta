@@ -1,6 +1,6 @@
-# fte-can09
+# canbeta
 
-東北大学 [FTE](https://www.fte-tohoku.org/) CanSat 9期代のプロジェクト用リポジトリです．
+東北大学 [FTE](https://www.fte-tohoku.org/) CanSat チーム9期代のプロジェクトです．
 
 ## Dependancies
 

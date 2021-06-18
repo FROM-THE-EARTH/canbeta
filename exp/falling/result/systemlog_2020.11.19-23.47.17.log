@@ -1,8 +1,0 @@
-INFO : 2020-11-19 23:47:17,070 : FallingNode : enter
-INFO : 2020-11-19 23:47:17,071 : FallingNode : start control
-INFO : 2020-11-19 23:47:17,072 : FallingNode : start judge
-INFO : 2020-11-19 23:47:42,687 : FallingNode : detected True
-INFO : 2020-11-19 23:47:42,688 : FallingNode : finish judge
-INFO : 2020-11-19 23:47:42,688 : FallingNode : finish control
-INFO : 2020-11-19 23:47:42,688 : Landing detected, rising data: [2.19, 2.19, 2.19, 2.19, 2.19, 2.19, 2.19, 2.19, 2.19, 2.19], falling data: [0.95, 0.89, 0.85, 0.85, 0.85, 0.83, 0.81, 0.81, 0.81, 0.81]
-INFO : 2020-11-19 23:47:42,689 : FallingNode : exit
